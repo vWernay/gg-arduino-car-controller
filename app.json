@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Controlador de Robô Arduino - GG",
+    "name": "Controlador Robô Arduino - GG",
     "slug": "gg-arduino-car-controller",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -19,7 +19,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "./assets/images/adaptive-icon-bg.png"
+        "backgroundImage": "./assets/images/adaptive-icon-bg.png"
       },
       "permissions": [
         "BLUETOOTH",

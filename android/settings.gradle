@@ -1,4 +1,4 @@
-rootProject.name = 'Controlador de Robô Arduino - GG'
+rootProject.name = 'Controlador Robô Arduino - GG'
 
 dependencyResolutionManagement {
   versionCatalogs {
