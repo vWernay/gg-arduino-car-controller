@@ -1,4 +1,4 @@
-rootProject.name = 'gg-arduino-car-controller'
+rootProject.name = 'Controlador de Robô Arduino - GG'
 
 dependencyResolutionManagement {
   versionCatalogs {
@@ -16,6 +16,3 @@ applyNativeModulesSettingsGradle(settings)
 
 include ':app'
 includeBuild(new File(["node", "--print", "require.resolve('@react-native/gradle-plugin/package.json', { paths: [require.resolve('react-native/package.json')] })"].execute(null, rootDir).text.trim()).getParentFile())
-
-include ':react-native-bluetooth-classic'
-project(':react-native-bluetooth-classic').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-bluetooth-classic/android')
