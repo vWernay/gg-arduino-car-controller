@@ -38,21 +38,51 @@ export const BluetoothProvider: React.FC<BluetoothProviderProps> = ({ children }
     async function checkIsBluetoothEnabled() {
         try {
             const enabled = await RNBluetoothClassic.requestBluetoothEnabled();
-            requestBluetoothPermissions();
             setIsBluetoothEnabled(enabled);
         } catch (err) {
-            Alert.alert('Erro', 'O Bluetooth deve estar disponível no dispositivo!');
+            Alert.alert('Erro', 'O Bluetooth deve estar disponível no dispositivo!', [{ text: 'OK', onPress: () => checkIsBluetoothEnabled() }]);
         }
     }
 
+    const requestBluetoothPermissions = async () => {
+        if (Platform.OS === 'android') {
+            try {
+                const granted = await PermissionsAndroid.requestMultiple([
+                    PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+                    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+                ]);
+
+                const allGranted = Object.values(granted).every(
+                    (status) => status === PermissionsAndroid.RESULTS.GRANTED
+                );
+
+                if (!allGranted) {
+                    Alert.alert('Permissões necessárias', 'Conceda permissões de Bluetooth e localização para que o aplicativo funcione corretamente.', [{ text: 'OK', onPress: () => requestBluetoothPermissions() }]);
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                console.error('Error requesting Bluetooth permissions:', error);
+                return false;
+            }
+        }
+        return true;
+    };
+
     useEffect(() => {
         const subscription = RNBluetoothClassic.onStateChanged(onStateChanged);
-        checkIsBluetoothEnabled()
+        const initBluetooth = async () => {
+            const permissionsGranted = await requestBluetoothPermissions();
+            if (permissionsGranted) {
+                checkIsBluetoothEnabled();
+            }
+        };
+        initBluetooth();
 
         return () => {
             subscription.remove();
         };
-    }, [])
+    }, []);
 
     useEffect(() => {
         async function fetchPairedDevices() {
@@ -67,35 +97,8 @@ export const BluetoothProvider: React.FC<BluetoothProviderProps> = ({ children }
 
         if (isBluetoothEnabled) {
             fetchPairedDevices();
-        } else {
-            checkIsBluetoothEnabled();
         }
     }, [isBluetoothEnabled]);
-
-    const requestBluetoothPermissions = async () => {
-        if (Platform.OS === 'android') {
-            try {
-                const granted = await PermissionsAndroid.requestMultiple([
-                    PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
-                    PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-                    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-                ]);
-
-                const allGranted = Object.values(granted).every(
-                    (status) => status === PermissionsAndroid.RESULTS.GRANTED
-                );
-
-                if (allGranted) {
-                    console.log('Bluetooth permissions granted');
-                } else {
-                    console.log('Bluetooth permissions denied');
-                    Alert.alert('Permissões necessárias', 'Conceda permissões de Bluetooth e localização para que o aplicativo funcione corretamente.');
-                }
-            } catch (error) {
-                console.error('Error requesting Bluetooth permissions:', error);
-            }
-        }
-    };
 
     const connectToDevice = useCallback(async (device: BluetoothDevice) => {
         if (connecting || (selectedDevice && selectedDevice.address === device.address)) return;
@@ -128,7 +131,6 @@ export const BluetoothProvider: React.FC<BluetoothProviderProps> = ({ children }
             Alert.alert('Desconectado', 'Desconectado do dispositivo');
         } catch (error) {
             console.error('Failed to disconnect from device:', error);
-            Alert.alert('Falha na desconexão', 'Falha ao desconectar do dispositivo, reinicie o aplicativo');
             setSelectedDevice(null);
             setIsConnected(false);
         }
@@ -136,6 +138,11 @@ export const BluetoothProvider: React.FC<BluetoothProviderProps> = ({ children }
 
     const onStateChanged = (e: StateChangeEvent) => {
         setIsBluetoothEnabled(e.enabled);
+        if (!e.enabled) {
+            setPairedDevices([]);
+            setSelectedDevice(null);
+            setIsConnected(false);
+        }
     }
 
     const onDeviceDisconnected = (e: BluetoothDeviceEvent) => {
