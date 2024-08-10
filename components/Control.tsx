@@ -1,9 +1,15 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { View, StyleSheet, useColorScheme, Alert } from "react-native";
+import { View, StyleSheet, useColorScheme, Alert, GestureResponderEvent, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedButton } from "./ThemedButton";
 import { ThemedText } from "./ThemedText";
 import { useBluetooth } from "@/contexts/BluetoothContext";
+
+const ArrowButton = ({ direction, onPress, isDarkMode }: { direction: 'up' | 'back' | 'forward' | 'down', onPress: ((event: GestureResponderEvent) => void) | undefined, isDarkMode: boolean }) => (
+    <TouchableOpacity activeOpacity={0.8} onPress={onPress}>
+        <Ionicons name={`caret-${direction}-circle`} size={96} color={isDarkMode ? 'white' : 'black'} />
+    </TouchableOpacity>
+);
 
 export function Control() {
     const isDarkMode = useColorScheme() === 'dark';
@@ -40,29 +46,29 @@ export function Control() {
         <View>
             <View style={styles.buttonGroup}>
                 <ThemedButton title="Manual" color={selectedMode === 'manual' ? 'blue' : 'white'} onPress={() => handleChangeMode('manual')} />
-                <ThemedButton title="Auto" color={selectedMode === 'auto' ? 'blue' : 'white'} disabled onPress={() => handleChangeMode('auto')} />
-                <ThemedButton title="Seguir Linha" color={selectedMode === 'line' ? 'blue' : 'white'} disabled onPress={() => handleChangeMode('line')} />
+                <ThemedButton title="Auto" color={selectedMode === 'auto' ? 'blue' : 'white'} onPress={() => handleChangeMode('auto')} />
+                <ThemedButton title="Seguir Linha" color={selectedMode === 'line' ? 'blue' : 'white'} onPress={() => handleChangeMode('line')} />
             </View>
             {selectedMode === 'manual' && (
                 <View style={styles.controlContainer}>
                     <View style={styles.row}>
-                        <Ionicons name="caret-up-circle" size={96} color={isDarkMode ? 'white' : 'black'} onPress={() => sendCommand('forward')} />
+                        <ArrowButton direction="up" isDarkMode={isDarkMode} onPress={() => sendCommand('F')} />
                     </View>
                     <View style={[styles.row, { marginTop: 40, marginBottom: 40, justifyContent: 'space-between', width: '100%' }]}>
-                        <Ionicons name="caret-back-circle" size={96} color={isDarkMode ? 'white' : 'black'} onPress={() => sendCommand('left')} />
-                        <Ionicons name="caret-forward-circle" size={96} color={isDarkMode ? 'white' : 'black'} onPress={() => sendCommand('right')} />
+                        <ArrowButton direction="back" isDarkMode={isDarkMode} onPress={() => sendCommand('L')} />
+                        <ArrowButton direction="forward" isDarkMode={isDarkMode} onPress={() => sendCommand('R')} />
                     </View>
                     <View style={styles.row}>
-                        <Ionicons name="caret-down-circle" size={96} color={isDarkMode ? 'white' : 'black'} onPress={() => sendCommand('backward')} />
+                        <ArrowButton direction="down" isDarkMode={isDarkMode} onPress={() => sendCommand('B')} />
                     </View>
                 </View>
             )}
             <View style={styles.speedControlContainer}>
                 <ThemedText style={styles.speedControlText}>Controle de Velocidade</ThemedText>
                 <View style={styles.buttonGroup}>
-                    <ThemedButton title="Baixa" color="white" onPress={() => sendCommand('speedLow')} />
-                    <ThemedButton title="Média" color="white" onPress={() => sendCommand('speedMedium')} />
-                    <ThemedButton title="Total" color="#fb2c92" onPress={() => sendCommand('speedHigh')} />
+                    <ThemedButton title="Baixa" color="white" onPress={() => sendCommand('1')} />
+                    <ThemedButton title="Média" color="white" onPress={() => sendCommand('2')} />
+                    <ThemedButton title="Total" color="#fb2c92" onPress={() => sendCommand('3')} />
                 </View>
             </View>
         </View>
