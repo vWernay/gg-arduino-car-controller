@@ -19,7 +19,8 @@ export function Control() {
     const sendCommand = useCallback(async (command: string) => {
         if (!selectedDevice) return;
         try {
-            await selectedDevice.write(command);
+            // Commands adapted to the format expected by the Lafvin Smart Robot Car Kits
+            await selectedDevice.write('%' + command + '#');
         } catch (error) {
             console.error('Falha ao enviar comando:', error);
             Alert.alert('Erro', 'Falha ao enviar comando');
@@ -28,19 +29,29 @@ export function Control() {
 
     const handleChangeMode = (mode: 'manual' | 'auto' | 'line') => {
         try {
-            sendCommand(mode);
+            switch (mode) {
+                case 'manual':
+                    sendCommand('S'); // STOP
+                    break;
+                case 'auto':
+                    sendCommand('A'); // Ultrasonic_Avoidance
+                    break;
+                case 'line':
+                    sendCommand('T'); // Infrared_Tracing
+                    break;
+            }
             setSelectedMode(mode);
         } catch (error) {
             console.error('Falha ao enviar comando:', error);
-            Alert.alert('Erro', 'Falha ao enviar comando');
+            Alert.alert('Erro', 'Falha ao enviar comando, verifique a conexão com o dispositivo');
         }
     }
 
     useEffect(() => {
         if (!selectedDevice) return;
         setSelectedMode('manual');
-        sendCommand(selectedMode);
-    }, [selectedDevice])
+        sendCommand('S');
+    }, [selectedDevice]);
 
     return (
         <View>
