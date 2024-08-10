@@ -4,7 +4,7 @@ GG Arduino Car Controller is a mobile application developed for the "CEM 01 do G
 
 <div align="center" style="display: flex; gap: 64px; justify-content: center">
     <img src="../media/devices_list.png?raw=true" height="300vh">
-    <img src="../media/control_png.png?raw=true" height="300vh">
+    <img src="../media/control.png?raw=true" height="300vh">
 </div>
 
 ## Features
